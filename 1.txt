@@ -1,0 +1,132 @@
+       	//自动创建开票方备案    判断当前经销商是否存在开票方备案
+            //封装参数到map
+            Map<String,String> attrMap = new HashMap<>();
+        	String carCityCode = (String) context.get("carProvinceCode");
+        	String carCityName = (String) context.get("carCityName");
+        	String carProvinceCode = (String) context.get("carProvinceCode");
+        	String carProvinceName = (String) context.get("carProvinceName");
+        	String dealerRegisterCityCode = (String) context.get("dealerRegisterCityCode");
+        	String dealerRegisterCityName = (String) context.get("dealerRegisterCityName");
+        	String dealerRegisterProvinceCode = (String) context.get("dealerRegisterProvinceCode");
+        	String dealerRegisterProvinceName = (String) context.get("dealerRegisterProvinceName");
+        	String dotProperties = (String) context.get("dotProperties");
+        	String drawerPartyName = (String) context.get("partyIdFrom");
+        	String mainBrand = (String) context.get("mainBrand");
+        	String partnersId = (String) context.get("partyIdTo");
+        	String partnersName = (String) context.get("partyIdFrom");
+        	String putOnRecordCount4Add = "0";
+        	String putOnRecordMode = (String) context.get("putOnRecordMode");
+        	String putOnRecordProperties = (String) context.get("putOnRecordProperties");
+        	String saleMode = (String) context.get("saleMode");
+        	String remark = "开票方备案";
+        	String status = "0";
+            attrMap.put("carCityCode",carCityCode);
+            attrMap.put("carCityName",carCityName);
+            attrMap.put("carProvinceCode",carProvinceCode);
+            attrMap.put("carProvinceName",carProvinceName);
+            attrMap.put("dealerRegisterCityCode",dealerRegisterCityCode);
+            attrMap.put("dealerRegisterCityName",dealerRegisterCityName);
+            attrMap.put("dealerRegisterProvinceCode",dealerRegisterProvinceCode);
+            attrMap.put("dealerRegisterProvinceName",dealerRegisterProvinceName);
+            attrMap.put("dotProperties",dotProperties);
+            attrMap.put("drawerPartyName",drawerPartyName);
+            attrMap.put("mainBrand",mainBrand);
+            attrMap.put("partnersId",partnersId);
+            attrMap.put("partnersName",partnersName);
+            attrMap.put("putOnRecordCount4Add",putOnRecordCount4Add);
+            attrMap.put("putOnRecordMode",putOnRecordMode);
+            attrMap.put("putOnRecordProperties",putOnRecordProperties);
+            attrMap.put("saleMode",saleMode);
+            attrMap.put("remark",remark);
+            attrMap.put("status",status);
+            attrMap.put("cooperationMode","0");
+
+            GenericHelperInfo helperInfo = delegator.getGroupHelperInfo("com.bosent");
+            SQLProcessor processor = new SQLProcessor(delegator, helperInfo);
+            ResultSet resultSet = null;
+            try {
+                String agreementIdQuery = "select a.agreement_id from chery_ccms.AGREEMENT a join " +
+                        "chery_ccms.AGREEMENT_ATTRIBUTE b on a.agreement_id = b.agreement_id\n" +
+                        " where party_id_to = '" + partyIdTo +
+                        "' and product_id = 'BA_XCKPFBA' and attr_name = 'cooperationMode' and attr_value = '0'";
+
+                processor.prepareStatement(agreementIdQuery);
+                resultSet = processor.executeQuery();
+
+                String agreeId = null;
+
+                if (resultSet.next()){
+                    agreeId = resultSet.getString("agreement_id");
+                }
+                if(agreeId == null){
+                    agreeId = delegator.getNextSeqId("agreementId", 1);
+                    //当前系统时间
+                    Date date = new Date();
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String nowDate = format.format(date);
+                    String insert = "INSERT INTO CHERY_CCMS.AGREEMENT \n" +
+                            "(AGREEMENT_ID, PRODUCT_ID, PARTY_ID_FROM, PARTY_ID_TO, ROLE_TYPE_ID_FROM, ROLE_TYPE_ID_TO, AGREEMENT_TYPE_ID, \n" +
+                            "AGREEMENT_DATE, FROM_DATE, THRU_DATE, DESCRIPTION, TEXT_DATA, LAST_UPDATED_STAMP, LAST_UPDATED_TX_STAMP, \n" +
+                            "CREATED_STAMP, CREATED_TX_STAMP, STATUS_ID, SIGN_LAYER, DEFAULT_CURRENCY_UOM_ID, FROM_PARTY_CLASS_GROUP_ID_FROM,\n" +
+                            "TO_PARTY_CLASS_GROUP_ID_FROM, AGREEMENT_NAME, CONTRACT_END_DATE, ACCOUNT_NUM, CONTRACT_FLAG, CONTRACT_TYPE, \n" +
+                            "CONTRACT_SUB_TYPE, PRODUCT_NAME, CONTRACT_DATE, CONTRACT_USER, CONTRACT_ORG, CONTRACT_CHANNEL, MODIFY_REASON, \n" +
+                            "MODIFY_DATE, MODIFY_USER, MODIFY_ORG, MODIFY_CHANNEL, DISMISSAL_REASON, DISMISSAL_DATE, DISMISSAL_USER, \n" +
+                            "DISMISSAL_ORG, DISMISSAL_CHANNEL, LEGAL_PERSON, APPROVED_PERSON, APPROVED_DATE, APPROVED_STATUS, \n" +
+                            "COURIER_STATUS, DEL_APPROVED_DATE, DEL_APPROVED_PERSON, DEL_APPROVED_STATUS, OPERATION_TYPE, DEALEAR_PROVINCE_CODE, \n" +
+                            "DEALEAR_CITY_CODE, CAR_PROVINCE_CODE, CAR_CITY_CODE) \n" +
+                            "VALUES ('" + agreeId +
+                            "', 'BA_XCKPFBA', '" + partyIdFrom +
+                            "', '" + partyIdTo +
+                            "', null, null, 'BA', \n" +
+                            "TO_TIMESTAMP('" + nowDate +
+                            "', 'SYYYY-MM-DD HH24:MI:SS'), \n" +
+                            "TO_TIMESTAMP('" + nowDate +
+                            "', 'SYYYY-MM-DD HH24:MI:SS'),\n" +
+                            " NULL, '" + partyIdFrom +
+                            "', NULL, TO_TIMESTAMP('" + nowDate +
+                            "', 'SYYYY-MM-DD HH24:MI:SS'), \n" +
+                            "TO_TIMESTAMP('" + nowDate +
+                            "', 'SYYYY-MM-DD HH24:MI:SS'), \n" +
+                            "TO_TIMESTAMP('" + nowDate +
+                            "', 'SYYYY-MM-DD HH24:MI:SS'), \n" +
+                            "TO_TIMESTAMP('" + nowDate +
+                            "', 'SYYYY-MM-DD HH24:MI:SS'), '0', NULL, '156', NULL, NULL,\n" +
+                            " '新车开票方新增备案', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '000000', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, \n" +
+                            "NULL, NULL, NULL, '000000', TO_TIMESTAMP('" + nowDate +
+                            "', 'SYYYY-MM-DD HH24:MI:SS'), 'ENABLED', '--', NULL, \n" +
+                            "NULL, NULL, 'ADD', '"+dealearProvinceCode+"', '"+carCityCode+"', '"+dealearProvinceCode+"', '"+carCityCode+"')";
+                    processor.prepareStatement(insert);
+                    processor.executeUpdate();
+
+                    for(Map.Entry<String,String> key:attrMap.entrySet()){
+                        String attrName = key.getKey();
+                        String attrValue = key.getValue();
+                        String insertAttr = "insert into CHERY_CCMS.AGREEMENT_ATTRIBUTE (AGREEMENT_ID,attr_name,attr_value,attr_description,\n" +
+                                "LAST_UPDATED_STAMP,LAST_UPDATED_TX_STAMP,CREATED_STAMP,CREATED_TX_STAMP) values ('" + agreeId +
+                                "','"+attrName+"','" +attrValue+
+                                "'',null,TO_TIMESTAMP('" + nowDate +
+                                "', 'SYYYY-MM-DD HH24:MI:SS'),\n" +
+                                "TO_TIMESTAMP('" + nowDate +
+                                "', 'SYYYY-MM-DD HH24:MI:SS'),\n" +
+                                "TO_TIMESTAMP('" + nowDate +
+                                "', 'SYYYY-MM-DD HH24:MI:SS'),\n" +
+                                "TO_TIMESTAMP('" + nowDate +
+                                "', 'SYYYY-MM-DD HH24:MI:SS'))";
+                        processor.prepareStatement(insert);
+                        processor.executeUpdate();
+                    }
+                }
+
+            }catch(Exception e){
+                Debug.logError(e, "", "查询失败");
+            }finally {
+                try {
+                    resultSet.close();
+                    processor.close();
+                } catch (SQLException | GenericDataSourceException throwables) {
+                    throwables.printStackTrace();
+                }
+
+            }
+
+        }
